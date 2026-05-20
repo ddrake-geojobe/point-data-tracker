@@ -1,6 +1,6 @@
-import { createTopbar } from './topbar.js';
-import { createSidebar } from './sidebar.js';
-import { openModal, closeModal } from './editLocModal.js';
+import { createTopbar } from './components/topbar/topbar.js';
+import { createSidebar } from './components/sidebar/sidebar.js';
+import { openModal, closeModal } from './components/editLocModal/editLocModal.js';
 
 let locations = []; // state
 

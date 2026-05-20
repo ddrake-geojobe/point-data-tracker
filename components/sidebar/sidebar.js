@@ -2,6 +2,11 @@ export function createSidebar(locations = [], onSelect) {
   const nav = document.createElement('nav');
   nav.id = 'sidebar';
 
+  const filter = document.createElement('input');
+  filter.type = 'search';
+  filter.id = 'sidebar-filter';
+  filter.placeholder = 'Filter locations...';
+
   const ul = document.createElement('ul');
   for (const loc of locations) {
     const li = document.createElement('li');
@@ -24,6 +29,14 @@ export function createSidebar(locations = [], onSelect) {
     ul.append(li);
   }
 
-  nav.append(ul);
+  filter.addEventListener('input', () => {
+    const query = filter.value.toLowerCase();
+    for (const li of ul.querySelectorAll('.sidebar-item')) {
+      const text = li.textContent.toLowerCase();
+      li.style.display = text.includes(query) ? '' : 'none';
+    }
+  });
+
+  nav.append(filter, ul);
   return nav;
 }
