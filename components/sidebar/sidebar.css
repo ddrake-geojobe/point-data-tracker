@@ -54,3 +54,9 @@
   color: #888;
   font-family: monospace;
 }
+
+#loader {
+  display: block;
+  width: 50px;
+  margin: 2rem auto 0;
+}

@@ -43,8 +43,11 @@ const server = http.createServer((req, res) => {
 
   // GET /api/points
   if (method === 'GET' && url === '/api/points') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(readPoints()));
+    // simulate 5 second delay
+    setTimeout(() => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(readPoints()));
+    }, 5000);
     return;
   }
 
@@ -65,8 +68,11 @@ const server = http.createServer((req, res) => {
       }
       points[index] = { ...points[index], ...updated, id };
       writePoints(points);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(points[index]));
+      // 5 second delay
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(points[index]));
+      }, 5000);
     });
     return;
   }

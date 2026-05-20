@@ -1,5 +1,5 @@
 import { createTopbar } from './components/topbar/topbar.js';
-import { createSidebar } from './components/sidebar/sidebar.js';
+import { createSidebar, createSidebarLoader } from './components/sidebar/sidebar.js';
 import { openModal, closeModal } from './components/editLocModal/editLocModal.js';
 
 let locations = []; // state
@@ -18,13 +18,16 @@ async function onSave(updated) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updated),
   });
+
   const index = locations.findIndex(l => l.id === updated.id);
   if (index !== -1) locations[index] = updated;
+
   renderSidebar();
 }
 
 async function init() {
   document.getElementById('topbar').replaceWith(createTopbar({ title: 'Point Tracker', user: 'Alice' }));
+  document.getElementById('sidebar').replaceWith(createSidebarLoader());
 
   const res = await fetch('/api/points');
   locations = await res.json();

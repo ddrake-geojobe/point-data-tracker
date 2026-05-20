@@ -1,4 +1,24 @@
-export function createSidebar(locations = [], onSelect) {
+export function createSidebarLoader() {
+  const nav = document.createElement('nav');
+  nav.id = 'sidebar';
+
+  const filter = document.createElement('input');
+  filter.type = 'search';
+  filter.id = 'sidebar-filter';
+  filter.placeholder = 'Filter locations...';
+  // filter.disabled = true;
+
+  const img = document.createElement('img');
+  img.id = 'loader';
+  img.src = 'assets/loading.gif';
+  img.alt = 'Loading...';
+
+  nav.append(filter, img);
+  return nav;
+}
+
+export function createSidebar(locations, onSelect) {
+  console.log('Creating sidebar with locations:', locations);
   const nav = document.createElement('nav');
   nav.id = 'sidebar';
 
