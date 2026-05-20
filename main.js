@@ -12,7 +12,12 @@ function renderSidebar() {
   );
 }
 
-function onSave(updated) {
+async function onSave(updated) {
+  await fetch(`/api/points/${updated.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updated),
+  });
   const index = locations.findIndex(l => l.id === updated.id);
   if (index !== -1) locations[index] = updated;
   renderSidebar();
@@ -21,7 +26,7 @@ function onSave(updated) {
 async function init() {
   document.getElementById('topbar').replaceWith(createTopbar({ title: 'Point Tracker', user: 'Alice' }));
 
-  const res = await fetch('./data/points.json');
+  const res = await fetch('/api/points');
   locations = await res.json();
 
   renderSidebar();
