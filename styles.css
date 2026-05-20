@@ -55,8 +55,26 @@ body {
 }
 
 #sidebar ul li {
-  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0;
   border-bottom: 1px solid #ccc;
+}
+
+.location-label {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.location-desc {
+  font-size: 0.9rem;
+}
+
+.location-coords {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: monospace;
 }
 
 /* Main content */
