@@ -1,10 +1,12 @@
 import { createTopbar } from './topbar.js';
 import { createSidebar } from './sidebar.js';
 
-document.getElementById('topbar').replaceWith(createTopbar({ title: 'Point Tracker', user: 'Alice' }));
+async function init() {
+  document.getElementById('topbar').replaceWith(createTopbar({ title: 'Point Tracker', user: 'Alice' }));
 
-fetch('./data/points.json')
-  .then(res => res.json())
-  .then(locations => {
-    document.getElementById('sidebar').replaceWith(createSidebar(locations));
-  });
+  const res = await fetch('./data/points.json');
+  const locations = await res.json();
+  document.getElementById('sidebar').replaceWith(createSidebar(locations));
+}
+
+init();
