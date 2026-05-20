@@ -24,6 +24,12 @@
   gap: 1rem;
 }
 
+#modal #header-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+
 #modal h2 {
   font-size: 1.1rem;
   color: #2c3e50;
