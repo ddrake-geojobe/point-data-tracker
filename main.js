@@ -23,15 +23,21 @@ function renderSidebar() {
 }
 
 async function onAdd(newLocation) {
-  console.log("about to post");
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
   await fetch(`/api/points`, {
     method: "POST",
     headers: { "Content-Type": "applications/json" },
     body: JSON.stringify(newLocation),
   });
+  const res = await fetch("/api/points");
+
+  locations = await res.json();
+
+  renderSidebar();
 }
 
 async function onSave(updated) {
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
   await fetch(`/api/points/${updated.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
