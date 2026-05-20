@@ -10,12 +10,23 @@
 }
 
 #sidebar-filter {
-  width: 100%;
+  width: 80%;
   padding: 0.4rem 0.6rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.9rem;
   flex-shrink: 0;
+}
+
+#sidebar-action-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1vw;
+}
+
+#sidebar-action-row #add-loc-btn {
+  text-wrap: nowrap;
 }
 
 #sidebar-filter:focus {

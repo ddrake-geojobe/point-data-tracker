@@ -1,6 +1,7 @@
 const FIELDS = await fetch("./data/schema.json").then((res) => res.json());
 
-export function openModal(location, onSave) {
+export function openModal(location, onSave, title = "Edit Location") {
+  document.getElementById("edit-modal-header").innerHTML = title;
   document.getElementById("modal-overlay").classList.remove("hidden");
 
   const closeX = document.getElementById("header-row");
@@ -14,7 +15,7 @@ export function openModal(location, onSave) {
     const input = document.createElement("input");
     input.type = field.type;
     input.name = field.key;
-    input.value = location[field.key] ?? "";
+    input.value = location?.[field.key] ?? ""; // ? acts like 'if (location)'
 
     label.append(input);
     form.append(label);
