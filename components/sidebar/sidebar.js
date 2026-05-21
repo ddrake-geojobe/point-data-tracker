@@ -11,7 +11,7 @@ export function createSidebarLoader() {
   return nav;
 }
 
-export function createSidebar(locations, onSelect, openModal) {
+export function createSidebar(locations, onSelect, openModal, onDelete) {
   console.log("Creating sidebar with locations:", locations);
   const nav = document.createElement("nav");
   nav.id = "sidebar";
@@ -35,6 +35,9 @@ export function createSidebar(locations, onSelect, openModal) {
     const li = document.createElement("li");
     li.classList.add("sidebar-item");
 
+    const locInfoCol = document.createElement("div");
+    locInfoCol.className = "location-info";
+
     const label = document.createElement("span");
     label.className = "location-label";
     label.textContent = loc.name;
@@ -47,7 +50,18 @@ export function createSidebar(locations, onSelect, openModal) {
     coords.className = "location-coords";
     coords.textContent = `${loc.latitude}, ${loc.longitude}`;
 
-    li.append(label, desc, coords);
+    locInfoCol.append(label, desc, coords);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-loc-btn";
+    deleteBtn.title = "Delete";
+    deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3h6l1 1h4v2H4V4h4L9 3zm-5 4h16l-1.5 13.5A1.5 1.5 0 0 1 17 22H7a1.5 1.5 0 0 1-1.5-1.5L4 7zm5 3v8h2v-8H9zm4 0v8h2v-8h-2z"/></svg>`;
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onDelete(loc.id);
+    });
+
+    li.append(locInfoCol, deleteBtn);
     li.addEventListener("click", () => onSelect(loc));
     ul.append(li);
   }

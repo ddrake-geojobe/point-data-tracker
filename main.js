@@ -18,28 +18,49 @@ function renderSidebar() {
       locations,
       (loc) => openModal(loc, onSave),
       () => openModal(undefined, onAdd, "Add Location"),
+      onDelete,
     ),
   );
 }
 
 async function onAdd(newLocation) {
-  console.log("about to post");
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
   await fetch(`/api/points`, {
     method: "POST",
     headers: { "Content-Type": "applications/json" },
     body: JSON.stringify(newLocation),
   });
+
+  const res = await fetch("/api/points");
+  locations = await res.json();
+  renderSidebar();
+}
+
+async function onDelete(id) {
+  if (!confirm("Are you sure you want to delete this location?")) return;
+
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
+  await fetch(`/api/points/${id}`, { method: "DELETE" });
+
+  const res = await fetch("/api/points");
+  locations = await res.json();
+
+  renderSidebar();
 }
 
 async function onSave(updated) {
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
   await fetch(`/api/points/${updated.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updated),
   });
 
-  const index = locations.findIndex((l) => l.id === updated.id);
-  if (index !== -1) locations[index] = updated;
+  const res = await fetch("/api/points");
+  locations = await res.json();
 
   renderSidebar();
 }
