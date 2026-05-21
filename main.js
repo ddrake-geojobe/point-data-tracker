@@ -1,4 +1,8 @@
 import { createTopbar } from "./components/topbar/topbar.js";
+import OAuthInfo from "@arcgis/core/identity/OAuthInfo.js";
+import IdentityManager from "@arcgis/core/identity/IdentityManager.js";
+import Portal from "@arcgis/core/portal/Portal.js";
+import config from "./config.json";
 import {
   createSidebar,
   createSidebarLoader,
@@ -7,6 +11,8 @@ import {
   openModal,
   closeModal,
 } from "./components/editLocModal/editLocModal.js";
+import { createMap } from "./components/map/map.js";
+
 
 let locations = []; // state
 
@@ -18,42 +24,83 @@ function renderSidebar() {
       locations,
       (loc) => openModal(loc, onSave),
       () => openModal(undefined, onAdd, "Add Location"),
+      onDelete,
     ),
   );
 }
 
 async function onAdd(newLocation) {
-  console.log("about to post");
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
   await fetch(`/api/points`, {
     method: "POST",
     headers: { "Content-Type": "applications/json" },
     body: JSON.stringify(newLocation),
   });
+
+  const res = await fetch("/api/points");
+  locations = await res.json();
+  renderSidebar();
+}
+
+async function onDelete(id) {
+  if (!confirm("Are you sure you want to delete this location?")) return;
+
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
+  await fetch(`/api/points/${id}`, { method: "DELETE" });
+
+  const res = await fetch("/api/points");
+  locations = await res.json();
+
+  renderSidebar();
 }
 
 async function onSave(updated) {
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
   await fetch(`/api/points/${updated.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updated),
   });
 
-  const index = locations.findIndex((l) => l.id === updated.id);
-  if (index !== -1) locations[index] = updated;
+  const res = await fetch("/api/points");
+  locations = await res.json();
 
   renderSidebar();
 }
 
 async function init() {
+  // Set up OAuth
+  const oauthInfo = new OAuthInfo({ appId: config.oauthAppId, popup: false });
+  IdentityManager.registerOAuthInfos([oauthInfo]);
+  await IdentityManager.getCredential("https://www.arcgis.com/sharing/rest");
+  const portal = new Portal();
+  await portal.load();
+  const userName = portal.user?.fullName ?? portal.user?.username ?? "User";
+
+  // Render Topbar
   document
     .getElementById("topbar")
-    .replaceWith(createTopbar({ title: "Point Tracker", user: "Alice" }));
+    .replaceWith(createTopbar({ title: "Point Tracker", user: userName, onSignOut: signOut }));
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
+  // Fetch points
   const res = await fetch("/api/points");
   locations = await res.json();
 
+  // Sidebar
   renderSidebar();
+
+  // Render Map
+  const { container, pointsLayer } = await createMap(config.pointsFeatureLayerUrl);
+  document.getElementById("arcgis-map").replaceChildren(container);
+}
+
+function signOut() {
+  IdentityManager.destroyCredentials();
+  window.location.reload();
 }
 
 init();

@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { randomUUID } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3000;
@@ -49,7 +50,7 @@ const server = http.createServer((req, res) => {
     setTimeout(() => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(readPoints()));
-    }, 5000);
+    }, 2000);
     return;
   }
 
@@ -74,7 +75,7 @@ const server = http.createServer((req, res) => {
       setTimeout(() => {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(points[index]));
-      }, 5000);
+      }, 2000);
     });
     return;
   }
@@ -86,7 +87,7 @@ const server = http.createServer((req, res) => {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
-      const newLoc = JSON.parse(body);
+      const newLoc = { ...JSON.parse(body), id: randomUUID() };
       const points = readPoints();
       points.push(newLoc);
       writePoints(points);
@@ -96,6 +97,25 @@ const server = http.createServer((req, res) => {
       }, 2000);
     });
 
+    return;
+  }
+
+  // DELETE /api/points/:id
+  if (method === "DELETE" && updateMatch) {
+    const id = updateMatch[1];
+    const points = readPoints();
+    const index = points.findIndex((p) => p.id == id);
+    if (index === -1) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Point not found" }));
+      return;
+    }
+    points.splice(index, 1);
+    writePoints(points);
+    setTimeout(() => {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ id: id }));
+    }, 2000);
     return;
   }
 
