@@ -44,13 +44,12 @@ async function renderSidebar() {
   // Fetch points
   let pointsFeatureSet = await pointsFeatureLayer.queryFeatures({
     where: "1=1",
-    outFields: ["*"]
+    outFields: ["*"],
+    returnGeometry: true,
   });
 
-  let locationAttrs = pointsFeatureSet.features.map(f => f.attributes);
-
   let sidebarEl = createSidebar(
-    locationAttrs,
+    pointsFeatureSet.features,
     // TODO
     (loc) => openModal(pointsFeatureLayerFields, loc, onSave),
     // TODO
@@ -65,16 +64,7 @@ async function onAdd(newLocation) {
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
   let res = await pointsFeatureLayer.applyEdits({
-    addFeatures: [
-      {
-        attributes: newLocation,
-        geometry: {
-          type: "point",
-          longitude: newLocation.longitude,
-          latitude: newLocation.latitude,
-        }
-      }
-    ]
+    addFeatures: [newLocation]
   });
 
   renderSidebar();
@@ -98,11 +88,7 @@ async function onSave(updated) {
   updated.StartDate = new Date(updated.StartDate).getTime();
 
   let updateRes = await pointsFeatureLayer.applyEdits({
-    updateFeatures: [
-      {
-        attributes: updated,
-      }
-    ]
+    updateFeatures: [updated]
   });
 
   renderSidebar();
