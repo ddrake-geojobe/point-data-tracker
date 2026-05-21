@@ -51,6 +51,40 @@
   background-color: #dce3e8;
 }
 
+#sidebar ul li.sidebar-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+} 
+
+#sidebar ul li .delete-loc-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e74c3c;
+  padding: 0.25rem;
+  border-radius: 4px;
+  line-height: 0;
+}
+
+#sidebar ul li:hover .delete-loc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sidebar ul li .delete-loc-btn:hover {
+  background-color: #b6b6b6;
+}
+
+#sidebar ul li .location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
 .location-label {
   font-weight: bold;
   color: #2c3e50;
