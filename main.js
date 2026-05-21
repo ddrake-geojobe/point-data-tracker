@@ -7,6 +7,11 @@ import {
   openModal,
   closeModal,
 } from "./components/editLocModal/editLocModal.js";
+import OAuthInfo from "@arcgis/core/identity/OAuthInfo.js";
+import IdentityManager from "@arcgis/core/identity/IdentityManager.js";
+import Portal from "@arcgis/core/portal/Portal.js";
+import config from "./config.json";
+
 
 let locations = []; // state
 
@@ -66,15 +71,29 @@ async function onSave(updated) {
 }
 
 async function init() {
+  // Set up OAuth
+  const oauthInfo = new OAuthInfo({ appId: config.oauthAppId, popup: false });
+  IdentityManager.registerOAuthInfos([oauthInfo]);
+  await IdentityManager.getCredential("https://www.arcgis.com/sharing/rest");
+
+  const portal = new Portal();
+  await portal.load();
+  const userName = portal.user?.fullName ?? portal.user?.username ?? "User";
+
   document
     .getElementById("topbar")
-    .replaceWith(createTopbar({ title: "Point Tracker", user: "Alice" }));
+    .replaceWith(createTopbar({ title: "Point Tracker", user: userName, onSignOut: signOut }));
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
   const res = await fetch("/api/points");
   locations = await res.json();
 
   renderSidebar();
+}
+
+function signOut() {
+  IdentityManager.destroyCredentials();
+  window.location.reload();
 }
 
 init();
