@@ -21,7 +21,7 @@ body {
 }
 
 /* Main content */
-#content {
+#arcgis-map {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;

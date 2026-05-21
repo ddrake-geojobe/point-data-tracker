@@ -1,4 +1,8 @@
 import { createTopbar } from "./components/topbar/topbar.js";
+import OAuthInfo from "@arcgis/core/identity/OAuthInfo.js";
+import IdentityManager from "@arcgis/core/identity/IdentityManager.js";
+import Portal from "@arcgis/core/portal/Portal.js";
+import config from "./config.json";
 import {
   createSidebar,
   createSidebarLoader,
@@ -7,10 +11,7 @@ import {
   openModal,
   closeModal,
 } from "./components/editLocModal/editLocModal.js";
-import OAuthInfo from "@arcgis/core/identity/OAuthInfo.js";
-import IdentityManager from "@arcgis/core/identity/IdentityManager.js";
-import Portal from "@arcgis/core/portal/Portal.js";
-import config from "./config.json";
+import { createMap } from "./components/map/map.js";
 
 
 let locations = []; // state
@@ -75,20 +76,26 @@ async function init() {
   const oauthInfo = new OAuthInfo({ appId: config.oauthAppId, popup: false });
   IdentityManager.registerOAuthInfos([oauthInfo]);
   await IdentityManager.getCredential("https://www.arcgis.com/sharing/rest");
-
   const portal = new Portal();
   await portal.load();
   const userName = portal.user?.fullName ?? portal.user?.username ?? "User";
 
+  // Render Topbar
   document
     .getElementById("topbar")
     .replaceWith(createTopbar({ title: "Point Tracker", user: userName, onSignOut: signOut }));
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
+  // Fetch points
   const res = await fetch("/api/points");
   locations = await res.json();
 
+  // Sidebar
   renderSidebar();
+
+  // Render Map
+  const { container, pointsLayer } = await createMap(config.pointsFeatureLayerUrl);
+  document.getElementById("arcgis-map").replaceChildren(container);
 }
 
 function signOut() {
