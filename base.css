@@ -23,6 +23,6 @@ body {
 /* Main content */
 #arcgis-map {
   flex: 1;
-  padding: 1.5rem;
+  padding: 0;
   overflow-y: auto;
 }
