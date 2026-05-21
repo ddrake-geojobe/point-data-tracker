@@ -8,6 +8,7 @@ export async function createMap(featureLayerUrl) {
 
   const pointsLayer = new FeatureLayer({
     url: featureLayerUrl,
+    definitionExpression: "1=1", // load all features
   });
   await pointsLayer.load();
 

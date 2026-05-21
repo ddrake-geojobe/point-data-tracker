@@ -13,33 +13,70 @@ import {
 } from "./components/editLocModal/editLocModal.js";
 import { createMap } from "./components/map/map.js";
 
-
-let locations = []; // state
+let pointsFeatureLayer; // state
 
 document.getElementById("modal-close").addEventListener("click", closeModal);
 
-function renderSidebar() {
-  document.getElementById("sidebar").replaceWith(
-    createSidebar(
-      locations,
-      (loc) => openModal(loc, onSave),
-      () => openModal(undefined, onAdd, "Add Location"),
-      onDelete,
-    ),
+async function renderSidebar() {
+  let pointsFeatureLayerFields = pointsFeatureLayer.fields.map((f) => {
+
+    let fieldType = 'text';
+
+    switch (f.type) {
+      case "double":
+      case "integer":
+        fieldType = "number";
+        break;
+      case "date":
+        fieldType = "date";
+        break;
+      default:
+        fieldType = f.type;
+    }
+
+    return {
+      key: f.name,
+      label: f.alias,
+      type: fieldType,
+    }
+  });
+
+  // Fetch points
+  let pointsFeatureSet = await pointsFeatureLayer.queryFeatures({
+    where: "1=1",
+    outFields: ["*"]
+  });
+
+  let locationAttrs = pointsFeatureSet.features.map(f => f.attributes);
+
+  let sidebarEl = createSidebar(
+    locationAttrs,
+    // TODO
+    (loc) => openModal(pointsFeatureLayerFields, loc, onSave),
+    // TODO
+    () => openModal(pointsFeatureLayerFields, undefined, onAdd, "Add Location"),
+    onDelete,
   );
+
+  document.getElementById("sidebar").replaceWith(sidebarEl);
 }
 
 async function onAdd(newLocation) {
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
-  await fetch(`/api/points`, {
-    method: "POST",
-    headers: { "Content-Type": "applications/json" },
-    body: JSON.stringify(newLocation),
+  let res = await pointsFeatureLayer.applyEdits({
+    addFeatures: [
+      {
+        attributes: newLocation,
+        geometry: {
+          type: "point",
+          longitude: newLocation.longitude,
+          latitude: newLocation.latitude,
+        }
+      }
+    ]
   });
 
-  const res = await fetch("/api/points");
-  locations = await res.json();
   renderSidebar();
 }
 
@@ -59,14 +96,15 @@ async function onDelete(id) {
 async function onSave(updated) {
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
-  await fetch(`/api/points/${updated.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated),
-  });
+  updated.StartDate = new Date(updated.StartDate).getTime();
 
-  const res = await fetch("/api/points");
-  locations = await res.json();
+  let updateRes = await pointsFeatureLayer.applyEdits({
+    updateFeatures: [
+      {
+        attributes: updated,
+      }
+    ]
+  });
 
   renderSidebar();
 }
@@ -86,16 +124,14 @@ async function init() {
     .replaceWith(createTopbar({ title: "Point Tracker", user: userName, onSignOut: signOut }));
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
-  // Fetch points
-  const res = await fetch("/api/points");
-  locations = await res.json();
+  // Render Map
+  const { container, pointsLayer } = await createMap(config.pointsFeatureLayerUrl);
+  pointsFeatureLayer = pointsLayer;
+
+  document.getElementById("arcgis-map").replaceChildren(container);
 
   // Sidebar
   renderSidebar();
-
-  // Render Map
-  const { container, pointsLayer } = await createMap(config.pointsFeatureLayerUrl);
-  document.getElementById("arcgis-map").replaceChildren(container);
 }
 
 function signOut() {

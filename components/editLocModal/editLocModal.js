@@ -1,6 +1,4 @@
-const FIELDS = await fetch("./data/schema.json").then((res) => res.json());
-
-export function openModal(location, onSave, title = "Edit Location") {
+export function openModal(fields, location, onSave, title = "Edit Location") {
   document.getElementById("edit-modal-header").innerHTML = title;
   document.getElementById("modal-overlay").classList.remove("hidden");
 
@@ -8,17 +6,30 @@ export function openModal(location, onSave, title = "Edit Location") {
   const form = document.getElementById("modal-form");
   form.innerHTML = "";
 
-  for (const field of FIELDS) {
+  let formFields = [];
+
+  for (const field of fields) {
+    if (field.type === "oid" || field.type === "global-id") {
+      continue; // skip object ID and global ID fields
+    }
+
     const label = document.createElement("label");
     label.textContent = field.label;
 
     const input = document.createElement("input");
     input.type = field.type;
     input.name = field.key;
-    input.value = location?.[field.key] ?? ""; // ? acts like 'if (location)'
+
+    if (field.type === "date" && location?.[field.key]) {
+      input.value = new Date(location[field.key]).toISOString().split("T")[0];
+    }
+    else {
+      input.value = location?.[field.key] ?? ""; // ? acts like 'if (location)'
+    }
 
     label.append(input);
     form.append(label);
+    formFields.push(field);
   }
 
   const saveBtn = document.getElementById("modal-save");
@@ -27,10 +38,10 @@ export function openModal(location, onSave, title = "Edit Location") {
 
   newSaveBtn.addEventListener("click", () => {
     const updated = { ...location };
-    for (const field of FIELDS) {
+    for (const field of formFields) {
       const input = form.querySelector(`[name="${field.key}"]`);
-      updated[field.key] =
-        field.type === "number" ? parseFloat(input.value) : input.value;
+      updated[field.key] = field.type === "number" ? parseFloat(input.value) : input.value;
+      updated.OBJECTID = location?.OBJECTID; // ensure OBJECTID is included for updates
     }
     onSave(updated);
     closeModal();

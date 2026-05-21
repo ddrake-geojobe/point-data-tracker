@@ -12,7 +12,6 @@ export function createSidebarLoader() {
 }
 
 export function createSidebar(locations, onSelect, openModal, onDelete) {
-  console.log("Creating sidebar with locations:", locations);
   const nav = document.createElement("nav");
   nav.id = "sidebar";
 
@@ -40,17 +39,17 @@ export function createSidebar(locations, onSelect, openModal, onDelete) {
 
     const label = document.createElement("span");
     label.className = "location-label";
-    label.textContent = loc.name;
+    label.textContent = loc.Name;
 
     const desc = document.createElement("span");
     desc.className = "location-desc";
-    desc.textContent = loc.description;
+    desc.textContent = loc.Description;
 
-    const coords = document.createElement("span");
-    coords.className = "location-coords";
-    coords.textContent = `${loc.latitude}, ${loc.longitude}`;
+    // const coords = document.createElement("span");
+    // coords.className = "location-coords";
+    // coords.textContent = `${loc.Latitude}, ${loc.Longitude}`;
 
-    locInfoCol.append(label, desc, coords);
+    locInfoCol.append(label, desc);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-loc-btn";
@@ -63,6 +62,7 @@ export function createSidebar(locations, onSelect, openModal, onDelete) {
 
     li.append(locInfoCol, deleteBtn);
     li.addEventListener("click", () => onSelect(loc));
+
     ul.append(li);
   }
 
