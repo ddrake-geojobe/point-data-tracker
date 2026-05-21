@@ -11,7 +11,7 @@ export function createSidebarLoader() {
   return nav;
 }
 
-export function createSidebar(locations, onSelect, openModal) {
+export function createSidebar(locations, onSelect, openModal, deleteItem) {
   console.log("Creating sidebar with locations:", locations);
   const nav = document.createElement("nav");
   nav.id = "sidebar";
@@ -47,7 +47,18 @@ export function createSidebar(locations, onSelect, openModal) {
     coords.className = "location-coords";
     coords.textContent = `${loc.latitude}, ${loc.longitude}`;
 
-    li.append(label, desc, coords);
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-location-btn";
+    deleteBtn.innerHTML = "Delete";
+
+    deleteBtn.addEventListener("click", function (event) {
+      event.stopPropagation();
+      deleteItem(loc); // AI did this
+
+      console.log("Delete button clicked");
+    });
+
+    li.append(label, desc, coords, deleteBtn);
     li.addEventListener("click", () => onSelect(loc));
     ul.append(li);
   }

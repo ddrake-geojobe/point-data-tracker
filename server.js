@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { randomUUID } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3000;
@@ -53,8 +54,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // PUT /api/points/:id
   const updateMatch = url.match(/^\/api\/points\/(\d+)$/);
+
+  // PUT /api/points/:id
   if (method === "PUT" && updateMatch) {
     const id = parseInt(updateMatch[1], 10);
     let body = "";
@@ -87,6 +89,7 @@ const server = http.createServer((req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
       const newLoc = JSON.parse(body);
+      newLoc.id = randomUUID();
       const points = readPoints();
       points.push(newLoc);
       writePoints(points);
@@ -95,6 +98,52 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(newLoc));
       }, 2000);
     });
+
+    return;
+  }
+
+  // DELETE
+  // HW ADD A DELETE ON HOVER WITH CONFIRMATION
+  // if (method === "DELETE") {
+  //   const id = updateMatch[1];
+  //   req.on("end", () => {
+  //     const points = readPoints();
+  //     const index = points.findIndex((p) => p.id == id);
+  //     if (index === -1) {
+  //       res.writeHead(404, { "Content-Type": "application/json" });
+  //       res.end(JSON.stringify({ error: "Point not found" }));
+  //       return;
+  //     }
+  //     points.splice(index, 1);
+  //     writePoints(points);
+  //     // 5 second delay
+  //     setTimeout(() => {
+  //       res.writeHead(200, { "Content-Type": "application/json" });
+  //       res.end(JSON.stringify(id));
+  //     }, 5000);
+  //   });
+  //   return;
+  // }
+
+  // THIS WORKS (AI did this)
+  if (method === "DELETE") {
+    const id = updateMatch[1];
+
+    const points = readPoints();
+
+    const index = points.findIndex((p) => p.id == id);
+
+    if (index === -1) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Point not found" }));
+      return;
+    }
+
+    points.splice(index, 1);
+    writePoints(points);
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ deletedId: id }));
 
     return;
   }

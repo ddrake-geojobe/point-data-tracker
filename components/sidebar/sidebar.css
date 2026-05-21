@@ -39,16 +39,41 @@
 }
 
 #sidebar ul li {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  padding: 0.6rem 0;
+  padding: 0.6rem;
+  padding-right: 4.5rem;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
 }
 
+#sidebar ul li button {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+
+  opacity: 0;
+  pointer-events: none;
+
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #c0392b;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
 #sidebar ul li:hover {
   background-color: #dce3e8;
+}
+
+#sidebar ul li:hover button {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .location-label {

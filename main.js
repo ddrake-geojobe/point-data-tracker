@@ -18,6 +18,7 @@ function renderSidebar() {
       locations,
       (loc) => openModal(loc, onSave),
       () => openModal(undefined, onAdd, "Add Location"),
+      onDelete,
     ),
   );
 }
@@ -46,6 +47,24 @@ async function onSave(updated) {
 
   const index = locations.findIndex((l) => l.id === updated.id);
   if (index !== -1) locations[index] = updated;
+
+  renderSidebar();
+}
+
+async function onDelete(item) {
+  const confirmed = confirm("Are you sure you want to delete this item?");
+
+  if (!confirmed) return;
+
+  document.getElementById("sidebar").replaceWith(createSidebarLoader());
+
+  await fetch(`/api/points/${item.id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  locations = locations.filter((loc) => loc.id !== item.id); // AI did this
+  console.log("It is done");
 
   renderSidebar();
 }
