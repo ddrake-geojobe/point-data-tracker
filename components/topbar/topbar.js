@@ -1,4 +1,4 @@
-export function createTopbar({ title = 'Point Tracker', user = 'Guest' } = {}) {
+export function createTopbar({ title = 'Point Tracker', user = 'Guest', onSignOut } = {}) {
   const header = document.createElement('header');
   header.id = 'topbar';
 
@@ -11,5 +11,14 @@ export function createTopbar({ title = 'Point Tracker', user = 'Guest' } = {}) {
   userEl.textContent = user;
 
   header.append(titleEl, userEl);
+
+  if (onSignOut) {
+    const signOutBtn = document.createElement('button');
+    signOutBtn.className = 'topbar-signout';
+    signOutBtn.textContent = 'Sign Out';
+    signOutBtn.addEventListener('click', onSignOut);
+    header.append(signOutBtn);
+  }
+
   return header;
 }
