@@ -80,15 +80,14 @@ async function onAdd(newLocation) {
   renderSidebar();
 }
 
-async function onDelete(id) {
+async function onDelete(objectId) {
   if (!confirm("Are you sure you want to delete this location?")) return;
 
   document.getElementById("sidebar").replaceWith(createSidebarLoader());
 
-  await fetch(`/api/points/${id}`, { method: "DELETE" });
-
-  const res = await fetch("/api/points");
-  locations = await res.json();
+  let deleteRes = await pointsFeatureLayer.applyEdits({
+    deleteFeatures: [ { objectId: objectId } ]
+  });
 
   renderSidebar();
 }
